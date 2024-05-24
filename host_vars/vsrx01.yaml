@@ -1,0 +1,10 @@
+bgp:
+  local_as: 65002
+  groups:
+    - name: e-bgp
+      type: external
+      neighbours:
+        - peer: 10.0.255.1
+          remote_as: 65001
+          desc: "Peer to GoBGP - Ubuntu 22.04"
+          

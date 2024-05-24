@@ -1,0 +1,65 @@
+---
+   - name: NETCONF module vendor neutral netcommon collection 
+     hosts: junos_devices
+     connection: ansible.netcommon.netconf
+     gather_facts: false
+     tasks:
+        - name: Get the running config
+          ansible.netcommon.netconf_get:
+            source: running
+            filter: <configuration><system><host-name/></system></configuration>
+            display: json
+          register: config
+          tags:
+            - netconf_get
+
+        - name: Display the output config
+          debug:
+            var: config.output
+          tags: 
+            - netconf_get 
+
+        - name: get schema list with JSON output
+          ansible.netcommon.netconf_rpc:
+            rpc: get
+            content: |
+             <filter>
+             <netconf-state xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring">
+             <schemas/>
+             </netconf-state>
+             </filter>
+            display: json
+          register: schema
+          tags:
+            - netconf_rpc
+
+        - name: Display the schema
+          debug:
+            var: schema.output
+          tags:
+            - netconf_rpc
+
+        - name: use lookup filter to provide xml configuration
+          ansible.netcommon.netconf_config:
+            content: "{{ lookup('file', './config.xml') }}"
+          tags:
+            - netconf_config
+
+        - name: Using content
+          ansible.netcommon.netconf_config:
+            content: |
+              <config>
+               <configuration>
+                 <system>
+                    <ntp>
+                    <server>
+                        <name>192.168.0.1</name>
+                    </server>
+                    </ntp>
+                </system>
+              </configuration>
+               </config> 
+              
+          tags:
+            - netconf_config
+

@@ -1,0 +1,81 @@
+---
+   - name: NETCONF Configurations
+     hosts: junos_devices
+     connection: ansible.netcommon.netconf
+     gather_facts: false
+     tasks:
+        - name: Interface configuration 
+          junipernetworks.junos.junos_interfaces:
+            config:
+              - name: ge-0/0/0
+                description: Configured by Ansible
+                enabled: true
+                units:
+                  - name: 0
+                    description: "This is logical interface unit0"
+            state: merged
+          tags:
+            - if_config
+
+        - name: IPv4 interface configuration
+          junipernetworks.junos.junos_l3_interfaces:
+            config:
+              - name: ge-0/0/0
+                ipv4:
+                  - address: 10.0.255.2/30
+            state: merged
+          tags: 
+            - if_config
+
+        - name: Hostname configuration into running configuration.
+          junipernetworks.junos.junos_hostname:
+            config:
+              hostname: "{{ inventory_hostname }}"
+            state: merged
+          tags: 
+            - hostname_config
+
+        - name: BGP configuration
+          junipernetworks.junos.junos_config:
+            src: bgp_group.j2
+          when:
+            - bgp is defined
+          tags:
+            - bgp_config
+
+        - name: Configure lines into device - allow BGP traffic 
+          junipernetworks.junos.junos_config:
+            lines:
+               - set security zones security-zone trust interfaces ge-0/0/0.0 host-inbound-traffic protocols bgp
+            comment: update config
+          tags:
+            - bgp_config 
+
+        - name: Check BGP status
+          junipernetworks.junos.junos_command:
+            rpcs: get-bgp-summary-information
+          register: bgp_out
+          tags:
+            - check_bgp
+
+        - name: Display BGP status
+          debug:
+            var: bgp_out.output
+          tags:
+            - check_bgp
+
+        - name: Check route table
+          junipernetworks.junos.junos_command:
+            rpcs: get-route-information
+          register: route_out
+          tags:
+            - check_routes
+
+        - name: Display route table
+          debug:
+            var: route_out.output
+          tags: 
+            - check_routes
+
+
+

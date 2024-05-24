@@ -1,0 +1,22 @@
+---
+   - name: NETCONF module vendor neutral netcommon collection
+     hosts: junos_devices
+     connection: ansible.netcommon.netconf
+     gather_facts: false
+     tasks:
+       - name: get list of resource modules for given network_os
+         ansible.netcommon.network_resource:
+         register: result
+       
+       - name: print
+         debug: 
+           var: result.modules 
+
+       - name: fetch config
+         ansible.netcommon.network_resource:
+           name: hostname
+           state: gathered    
+         register: out  
+       - name:
+         debug:
+           var: out.gathered

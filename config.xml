@@ -1,0 +1,8 @@
+    <config>
+    <configuration>
+         <version>20.2R1.10</version>
+            <system>
+                <host-name>name_changed_from_ansible_01</host-name>
+             </system>
+    </configuration>
+    </config>

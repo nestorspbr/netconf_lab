@@ -1,0 +1,8 @@
+[junos_devices]
+vsrx01 ansible_host=192.168.0.90 ansible_port=2222
+
+[junos_devices:vars]
+ansible_user=admin
+#ansible_ssh_private_key_file=/path/key
+ansible_network_os=junipernetworks.junos.junos
+
